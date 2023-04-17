@@ -67,16 +67,11 @@ group by a4.name, g.artist_id
 having count(ganre_id) > 1 ;
 
 --*Наименования треков, которые не входят в сборники*
---Ваш вариант
-select s.name  from song s 
+select distinct s.name from song s 
 left join collectionsong c on s.id  = c.song_id  
-where c.song_id is NULL ; 
- --мой вариант
-select s.name  from song s 
-full join collectionsong c on c.song_id = s.id 
-full join collection c2 on c2.id = c.collection_id 
-group by s.name
-having count(c2.id) < 1;
+where c.song_id is NULL 
+;
+
 
 --Исполнитель или исполнители, написавшие самый короткий по продолжительности трек, — теоретически таких треков может быть несколько
 select a.name, MIN(s.duration) from artist a 
@@ -87,14 +82,17 @@ group by a.name, s.duration
 having s.duration = (select min(duration) from song s4 )
 order by a.name
 
+
+
 --Названия альбомов, содержащих наименьшее количество треков"
-SELECT a.name FROM alboms a 
+SELECT a.name FROM alboms a  
 JOIN song s  ON s.albom_id = a.id  /* Объединяем альбомы и треки */
 GROUP BY a.id  /* Группируем по айди альбомов */
 HAVING COUNT(s.id) = ( /* Где количество треков равно вложенному запросу, в котором получаем наименьшее количество треков в одном альбоме */
-    SELECT COUNT(s.id) FROM song s2  /* Получаем поличество айди треков из таблицы треков*/
-    GROUP BY a.id  /* Группируем по айди альбомов */
-    ORDER BY 1 /* Сортируем по первому столбцу */
-    LIMIT 1 /* Получаем первую запись */
+    SELECT COUNT(s2.id) FROM song s2  /* Получаем поличество айди треков из таблицы треков*/
+    GROUP BY s2.albom_id  /* Группируем по айди альбомов */
+    ORDER BY 1/* Сортируем по первому столбцу */
+    limit 1 /* Получаем первую запись */
 );
 
+order by a.name
